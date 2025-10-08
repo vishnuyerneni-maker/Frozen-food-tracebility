@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍕 Rich's Food Traceability System</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Web3 and QR Code Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🍕 Rich's Food Traceability</h1>
+            <div class="wallet-status">
+                <div id="connection-status" class="status-disconnected">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Disconnected</span>
+                </div>
+                <button id="connect-wallet" class="btn btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-tabs">
+        <div class="container">
+            <button class="tab-btn active" data-tab="scan">🔍 Scan Product</button>
+            <button class="tab-btn" data-tab="create">➕ Create Product</button>
+            <button class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- QR Scanning Tab -->
+            <div id="scan-tab" class="tab-content active">
+                <div class="section-header">
+                    <h2>🔍 Scan Product for Traceability</h2>
+                    <p>Scan QR code on product packaging to trace its journey from farm to fork</p>
+                </div>
+                
+                <div class="scan-section">
+                    <div class="scan-methods">
+                        <button id="start-camera" class="btn btn-large btn-success">
+                            📱 Start Camera Scanner
+                        </button>
+                        <div class="or-divider">OR</div>
+                        <div class="manual-input">
+                            <input type="number" id="lot-code-input" placeholder="Enter Lot Code (e.g., 20241006)" class="input-field">
+                            <button id="manual-trace" class="btn btn-primary">🔍 Trace Product</button>
+                        </div>
+                    </div>
+                    
+                    <div id="qr-reader" class="qr-reader" style="display: none;"></div>
+                    <button id="stop-camera" class="btn btn-secondary" style="display: none;">Stop Camera</button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="trace-results" class="results-section" style="display: none;">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Create Product Tab -->
+            <div id="create-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>➕ Create New Product</h2>
+                    <p>Register a new product in the blockchain traceability system</p>
+                </div>
+
+                <form id="create-product-form" class="form-section">
+                    <div class="form-group">
+                        <label for="product-id">Product ID</label>
+                        <input type="text" id="product-id" placeholder="e.g., PIZZA001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lot-code">Lot Code</label>
+                        <input type="number" id="lot-code" placeholder="e.g., 20241006" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" placeholder="e.g., Margherita Pizza" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="origin">Origin Location</label>
+                        <input type="text" id="origin" placeholder="e.g., Sunshine Farms, CA" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-large">🏭 Create Product</button>
+                </form>
+
+                <!-- Transfer Product Section -->
+                <div class="transfer-section">
+                    <h3>📦 Transfer Product</h3>
+                    <form id="transfer-product-form" class="form-section">
+                        <div class="form-group">
+                            <label for="transfer-lot-code">Lot Code to Transfer</label>
+                            <input type="number" id="transfer-lot-code" placeholder="e.g., 20241006" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transfer-location">New Location</label>
+                            <input type="text" id="transfer-location" placeholder="e.g., Processing Plant, TX" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transfer-action">Action</label>
+                            <select id="transfer-action" required>
+                                <option value="">Select Action</option>
+                                <option value="Processed">Processed</option>
+                                <option value="Manufactured">Manufactured</option>
+                                <option value="Stored">Stored</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Retail">Retail</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-large">🚚 Transfer Product</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>📊 System Dashboard</h2>
+                    <p>Overview of your food traceability system</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-products">0</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🔗</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="blockchain-height">0</div>
+                            <div class="stat-label">Block Height</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🏭</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="connected-account">Not Connected</div>
+                            <div class="stat-label">Connected Account</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>📋 Recent Activity</h3>
+                    <div id="activity-list" class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">🎯</div>
+                            <div class="activity-content">
+                                <div class="activity-text">System initialized successfully</div>
+                                <div class="activity-time">Ready for use</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loading-text">Processing...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/web3-integration.js"></script>
+    <script src="js/qr-scanner.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
